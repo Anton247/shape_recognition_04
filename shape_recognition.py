@@ -34,14 +34,42 @@ for cnt in contours:
         box = np.int0(box)
         rectangle_area = cv2.contourArea(box)
         print("Площадь прямоугольника:", rectangle_area)
+        rect_w, rect_h = rectangle[1][0], rectangle[1][1]
+        aspect_ratio = max(rect_w, rect_h) / min(rect_w, rect_h)
         
-        triangle = cv2.minEnclosingTriangle(cnt)[1]
-        triangle = np.int0(triangle)
-        triangle_area = cv2.contourArea(cnt)
+        try:
+            triangle = cv2.minEnclosingTriangle(cnt)[1]
+            triangle = np.int0(triangle)
+            triangle_area = cv2.contourArea(triangle)
+        except:
+            triangle_area = 0
+
         print("Площадь треугольника:", triangle_area)        
         print()
 
+        shapes_areas = {
+            'circle': circle_area,
+            'triangle': triangle_area,
+            'rectangle' if aspect_ratio > 1.25 else 'square': rectangle_area
+        }
+
+        diffs = {
+            name: abs(contour_area - shapes_areas[name]) for name in shapes_areas
+        }
+
+        shape_name = min(diffs, key=diffs.get)
         
+        if shape_name == 'circle':
+            cv2.circle(drawing, (int(circle_x), int(circle_y)), int(circle_radius), (255, 255, 0), 2, cv2.LINE_AA)
+        elif shape_name == 'triangle':
+            cv2.drawContours(drawing, [triangle], 0, (100, 255, 155), 2, cv2.LINE_AA)
+        else:
+            cv2.drawContours(drawing, [box], 0, (0, 150, 255), 2, cv2.LINE_AA)
+        
+        #добавить подписи фигур
+        print()
+
+
         
 cv2.imshow("window", drawing)
 cv2.waitKey(0)
