@@ -9,12 +9,12 @@ def find_contours(img, color):
 
     return contours
 
-img = cv2.imread("pool_two_bins.jpg")
+img = cv2.imread("green_shapes.jpg")
 drawing = img.copy()
 
 color = (
-            (30, 80, 0),
-            (70, 200, 255)
+            (56, 190, 90),
+            (74, 255, 255)
         )
 
 contours = find_contours(img, color)
@@ -66,10 +66,19 @@ for cnt in contours:
         else:
             cv2.drawContours(drawing, [box], 0, (0, 150, 255), 2, cv2.LINE_AA)
         
-        #добавить подписи фигур
         print()
 
+        moments = cv2.moments(cnt)
+        try:
+            x = int(moments['m10'] / moments['m00'])
+            y = int(moments['m01'] / moments['m00'])
+            cv2.circle(drawing, (x, y), 4, (0, 100, 255), -1, cv2.LINE_AA)
 
-        
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(drawing, shape_name, (x - 40, y + 30), font, 1, (0,0,0), 4, cv2.LINE_AA)
+            cv2.putText(drawing, shape_name, (x - 41, y + 31), font, 1, (255,255,255), 2, cv2.LINE_AA)
+        except:
+            pass
+      
 cv2.imshow("window", drawing)
 cv2.waitKey(0)
